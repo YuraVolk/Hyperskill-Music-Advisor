@@ -64,7 +64,7 @@ class Server {
     }
 
     void getCategory(String category) {
-        model.getCategory(category.toLowerCase());
+        model.getCategory(category.toLowerCase().replaceAll("\\s+", ""));
     }
 
     void getFeatured() {
