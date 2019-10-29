@@ -71,11 +71,13 @@ class SpotifyModel {
     }
 
     void getFeatured() {
+
         final GetListOfFeaturedPlaylistsRequest getListOfFeaturedPlaylistsRequest = api
                 .getListOfFeaturedPlaylists().build();
 
         try {
             final FeaturedPlaylists featuredPlaylists = getListOfFeaturedPlaylistsRequest.execute();
+            System.out.println("---FEATURED---");
             for (int i = 0; i < 5; i++) {
                 System.out.println(featuredPlaylists.getPlaylists().getItems()[i].getName());
             }
@@ -103,7 +105,7 @@ class SpotifyModel {
                 releases.put(albumSimplifiedPaging[i].getName().replaceAll("\\[|\\]", "")
                 ,arrayToList(albumSimplifiedPaging[0].getArtists()));
             }
-
+            System.out.println("---NEW RELEASES---");
             releases.forEach((key, value) -> System.out.println(key + " " + value));
         } catch (IOException | SpotifyWebApiException e) {
             System.out.println("Internal server error.");
