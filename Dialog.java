@@ -55,7 +55,7 @@ class Dialog {
                     server.getCategories();
                     break;
                 case "playlists":
-                    server.getCategory(scanner.next());
+                    server.getCategory(scanner.nextLine());
             }
         }
 
