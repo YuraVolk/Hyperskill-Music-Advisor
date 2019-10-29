@@ -3,10 +3,9 @@ package advisor;
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.special.FeaturedPlaylists;
-import com.wrapper.spotify.model_objects.specification.AlbumSimplified;
-import com.wrapper.spotify.model_objects.specification.ArtistSimplified;
-import com.wrapper.spotify.model_objects.specification.Category;
+import com.wrapper.spotify.model_objects.specification.*;
 
+import com.wrapper.spotify.requests.data.browse.GetCategorysPlaylistsRequest;
 import com.wrapper.spotify.requests.data.browse.GetListOfCategoriesRequest;
 import com.wrapper.spotify.requests.data.browse.GetListOfFeaturedPlaylistsRequest;
 import com.wrapper.spotify.requests.data.browse.GetListOfNewReleasesRequest;
@@ -29,16 +28,46 @@ class SpotifyModel {
         try {
             final Category[] categoryPaging = list.execute().getItems();
             System.out.println("---CATEGORIES---");
-            for (int i = 0; i < 4; i++) {
-                System.out.println(categoryPaging[i].getName());
+            if (categoryPaging.length < 4) {
+                for (int i = 0; i < categoryPaging.length; i++) {
+                    System.out.println(categoryPaging[i].getName());
+                }
+            } else {
+                for (int i = 0; i < 4; i++) {
+                    System.out.println(categoryPaging[i].getName());
+                }
             }
+
         } catch (IOException | SpotifyWebApiException e) {
             System.out.println("Internal server error.");
         }
     }
 
     void getCategory(String category) {
+        final GetCategorysPlaylistsRequest getCategoryRequest = api.getCategorysPlaylists(category)
+                .build();
 
+        try {
+            final PlaylistSimplified[] playlists = getCategoryRequest.execute().getItems();
+
+            System.out.printf("---%S PLAYLISTS---\n", category);
+            if (playlists.length == 0) {
+                System.out.println("No playlists with this category exists.");
+            } else {
+                if (playlists.length < 4) {
+                    for (int i = 0; i < playlists.length; i++) {
+                        System.out.println(playlists[i].getName());
+                    }
+                } else {
+                    for (int i = 0; i < 4; i++) {
+                        System.out.println(playlists[i].getName());
+                    }
+                }
+
+            }
+        } catch (IOException | SpotifyWebApiException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
     void getFeatured() {
@@ -70,7 +99,12 @@ class SpotifyModel {
         try {
             final AlbumSimplified[] albumSimplifiedPaging = getListOfNewReleasesRequest.execute().getItems();
             Map<String, ArrayList<String>> releases =  new HashMap<>();
-            System.out.println("Total: " + albumSimplifiedPaging[0].getName());
+            for (int i = 0; i < 5; i++) {
+                releases.put(albumSimplifiedPaging[i].getName().replaceAll("\\[|\\]", "")
+                ,arrayToList(albumSimplifiedPaging[0].getArtists()));
+            }
+
+            releases.forEach((key, value) -> System.out.println(key + " " + value));
         } catch (IOException | SpotifyWebApiException e) {
             System.out.println("Internal server error.");
         }
