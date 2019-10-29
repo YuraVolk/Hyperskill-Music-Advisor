@@ -13,6 +13,7 @@ class Server {
     private URI redirectURI;
     private final String clientID;
     private final String clientSecret;
+    private SpotifyModel model;
 
     private SpotifyApi api;
 
@@ -27,22 +28,23 @@ class Server {
         this.clientSecret = clientSecret;
     }
 
-
     boolean requestAccessToken() {
-        SpotifyApi spotifyApi = new SpotifyApi.Builder()
+        api = new SpotifyApi.Builder()
                 .setClientId(clientID)
                 .setClientSecret(clientSecret)
                 .setRedirectUri(redirectURI)
                 .build();
 
-        final ClientCredentialsRequest clientCredentialsRequest = spotifyApi.clientCredentials()
+        final ClientCredentialsRequest clientCredentialsRequest = api.clientCredentials()
                 .build();
 
         try {
             final ClientCredentials clientCredentials = clientCredentialsRequest.execute();
-            spotifyApi.setAccessToken(clientCredentials.getAccessToken());
 
-            api = spotifyApi;
+            setAccessToken(clientCredentials.getAccessToken());
+
+
+            model = new SpotifyModel(api);
             return true;
         } catch (IOException | SpotifyWebApiException e) {
             return false;
@@ -51,5 +53,25 @@ class Server {
 
     String getAccessToken() {
         return api.getAccessToken();
+    }
+
+    private void setAccessToken(String accessToken) {
+        api.setAccessToken(accessToken);
+    }
+
+    void getCategories() {
+        model.getCategories();
+    }
+
+    void getCategory(String category) {
+        model.getCategory(category.toLowerCase());
+    }
+
+    void getFeatured() {
+        model.getFeatured();
+    }
+
+    void getNew() {
+        model.getNew();
     }
 }
