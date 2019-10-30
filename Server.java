@@ -51,10 +51,6 @@ class Server {
         }
     }
 
-    String getAccessToken() {
-        return api.getAccessToken();
-    }
-
     private void setAccessToken(String accessToken) {
         api.setAccessToken(accessToken);
     }
