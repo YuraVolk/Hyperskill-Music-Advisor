@@ -32,9 +32,7 @@ class Dialog {
                     System.out.println("Internal server error. Please reload the app.");
                 } else {
                     isSigned = true;
-                    System.out.printf("{\"access_token\": \"%s\", \"scope\": \"\"}\n",
-                            server.getAccessToken());
-                    System.out.println("---SUCCESS---");
+                    System.out.println("Success!");
                 }
 
             }
