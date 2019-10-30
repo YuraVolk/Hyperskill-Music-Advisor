@@ -22,20 +22,29 @@ class SpotifyModel {
         this.api = api;
     }
 
+    private String processLink(String link, String subCategory) {
+        String processedLink = link.replace("api.spotify", "open.spotify");
+        switch (subCategory) {
+            case "albums":
+                processedLink = processedLink.replace("albums", "album");
+                break;
+            case "playlists":
+            default:
+                processedLink = processedLink.replace("playlists", "playlist");
+                break;
+        }
+
+        processedLink = processedLink.replace("v1/", "");
+        return processedLink;
+    }
 
     void getCategories() {
         final GetListOfCategoriesRequest list = api.getListOfCategories().build();
         try {
             final Category[] categoryPaging = list.execute().getItems();
             System.out.println("---CATEGORIES---");
-            if (categoryPaging.length < 4) {
-                for (int i = 0; i < categoryPaging.length; i++) {
-                    System.out.println(categoryPaging[i].getName());
-                }
-            } else {
-                for (int i = 0; i < 4; i++) {
-                    System.out.println(categoryPaging[i].getName());
-                }
+            for (int i = 0; i < categoryPaging.length; i++) {
+                System.out.println(categoryPaging[i].getName());
             }
 
         } catch (IOException | SpotifyWebApiException e) {
@@ -54,13 +63,17 @@ class SpotifyModel {
             if (playlists.length == 0) {
                 System.out.println("No playlists with this category exists.");
             } else {
-                if (playlists.length < 4) {
+                if (playlists.length < 5) {
                     for (int i = 0; i < playlists.length; i++) {
                         System.out.println(playlists[i].getName());
+                        System.out.println(processLink(playlists[i].getHref(),
+                                "playlists") + "\n");
                     }
                 } else {
-                    for (int i = 0; i < 4; i++) {
+                    for (int i = 0; i < 5; i++) {
                         System.out.println(playlists[i].getName());
+                        System.out.println(processLink(playlists[i].getHref(),
+                                "playlists") + "\n");
                     }
                 }
 
@@ -80,6 +93,8 @@ class SpotifyModel {
             System.out.println("---FEATURED---");
             for (int i = 0; i < 5; i++) {
                 System.out.println(featuredPlaylists.getPlaylists().getItems()[i].getName());
+                System.out.println(processLink(featuredPlaylists.getPlaylists()
+                        .getItems()[i].getHref() + "\n", "playlists"));
             }
         } catch (IOException | SpotifyWebApiException e) {
             System.out.println("Internal server error.");
@@ -101,12 +116,18 @@ class SpotifyModel {
         try {
             final AlbumSimplified[] albumSimplifiedPaging = getListOfNewReleasesRequest.execute().getItems();
             Map<String, ArrayList<String>> releases =  new HashMap<>();
+            ArrayList<String> links = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
                 releases.put(albumSimplifiedPaging[i].getName().replaceAll("\\[|\\]", "")
                 ,arrayToList(albumSimplifiedPaging[0].getArtists()));
+                links.add(albumSimplifiedPaging[i].getHref());
             }
             System.out.println("---NEW RELEASES---");
-            releases.forEach((key, value) -> System.out.println(key + " " + value));
+            for (int i = 0; i < releases.size(); i++) {
+                System.out.println(releases.keySet().toArray()[i]);
+                System.out.println(releases.values().toArray()[i]);
+                System.out.println(processLink(links.get(i), "albums") + "\n");
+            }
         } catch (IOException | SpotifyWebApiException e) {
             System.out.println("Internal server error.");
         }
