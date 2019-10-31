@@ -11,7 +11,9 @@ import com.wrapper.spotify.requests.data.browse.GetListOfFeaturedPlaylistsReques
 import com.wrapper.spotify.requests.data.browse.GetListOfNewReleasesRequest;
 
 import java.io.IOException;
+import java.lang.Error;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,7 +56,8 @@ class SpotifyModel {
             currentPage--;
             return;
         }
-        final GetListOfCategoriesRequest list = api.getListOfCategories().offset(currentPage * limit).limit(limit).build();
+        final GetListOfCategoriesRequest list = api.getListOfCategories()
+                .offset(currentPage * limit).limit(limit).build();
         try {
             final Category[] categoryPaging = list.execute().getItems();
 
@@ -62,6 +65,8 @@ class SpotifyModel {
             for (int i = 0; i < categoryPaging.length; i++) {
                 System.out.println(categoryPaging[i].getName());
             }
+
+
             System.out.printf("---PAGE %s of %s---\n", currentPage + 1, categories / limit);
         } catch (IOException | SpotifyWebApiException e) {
             System.out.println("Internal server error.");
@@ -69,49 +74,103 @@ class SpotifyModel {
     }
 
     void getCategory(String category) {
-        final GetCategorysPlaylistsRequest getCategoryRequest = api.getCategorysPlaylists(category)
+        ArrayList<String> list = new ArrayList<String>(Arrays.asList(
+                "toplists",
+                "pop",
+                "blackhistoryisnow",
+                "mood",
+                "hip-hop",
+                "throwback",
+                "workout",
+                "party",
+                "electronic/dance",
+                "chill",
+                "focus",
+                "happyholidays",
+                "sleep",
+                "rock",
+                "dinner",
+                "jazz",
+                "r&b",
+                "romance",
+                "soul",
+                "indie",
+                "gaming",
+                "classical",
+                "metal",
+                "latin",
+                "kids&family",
+                "folk&acoustic",
+                "gaming",
+                "afro",
+                "arab",
+                "country",
+                "reggae",
+                "metal",
+                "student",
+                "kids&family",
+                "dinner",
+                "k-pop"
+        ));
+
+        if (!category.contains(category)) {
+            System.out.println("No such category exists.");
+            return;
+        }
+        final GetCategorysPlaylistsRequest getCategoryRequest = api
+                .getCategorysPlaylists(category)
                 .build();
 
         try {
             final PlaylistSimplified[] playlists = getCategoryRequest.execute().getItems();
-
             System.out.printf("---%S PLAYLISTS---\n", category);
             if (playlists.length == 0) {
                 System.out.println("No playlists with this category exists.");
-            } else {
-                if (playlists.length < 5) {
-                    for (int i = 0; i < playlists.length; i++) {
-                        System.out.println(playlists[i].getName());
-                        System.out.println(processLink(playlists[i].getHref(),
-                                "playlists") + "\n");
-                    }
-                } else {
-                    for (int i = 0; i < 5; i++) {
-                        System.out.println(playlists[i].getName());
-                        System.out.println(processLink(playlists[i].getHref(),
-                                "playlists") + "\n");
-                    }
-                }
 
+            } else {
+                for (int i = 0; i < playlists.length; i++) {
+                    System.out.println(playlists[i].getName());
+                    System.out.println(processLink(playlists[i].getHref(),
+                            "playlists") + "\n");
+                }
             }
         } catch (IOException | SpotifyWebApiException e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Internal server error.");
         }
+
     }
 
     void getFeatured() {
+        if (currentPage < 0) {
+            currentPage++;
+            System.out.println("No more pages.");
+            return;
+        }
 
+        final int lists = 10;
+        final int limit = 5;
+
+        if (currentPage + 1 > lists / limit) {
+            System.out.println("No more pages.");
+            currentPage--;
+            return;
+        }
         final GetListOfFeaturedPlaylistsRequest getListOfFeaturedPlaylistsRequest = api
-                .getListOfFeaturedPlaylists().build();
+                .getListOfFeaturedPlaylists().offset(currentPage * limit).limit(limit)
+                .build();
 
         try {
-            final FeaturedPlaylists featuredPlaylists = getListOfFeaturedPlaylistsRequest.execute();
+
+            final FeaturedPlaylists featuredPlaylists = getListOfFeaturedPlaylistsRequest
+                    .execute();
+
             System.out.println("---FEATURED---");
             for (int i = 0; i < 5; i++) {
                 System.out.println(featuredPlaylists.getPlaylists().getItems()[i].getName());
                 System.out.println(processLink(featuredPlaylists.getPlaylists()
                         .getItems()[i].getHref() + "\n", "playlists"));
             }
+            System.out.printf("---PAGE %s of %s---\n", currentPage + 1, lists / limit);
 
         } catch (IOException | SpotifyWebApiException e) {
             System.out.println("Internal server error.");
@@ -146,11 +205,12 @@ class SpotifyModel {
                 .offset(currentPage * limit).limit(limit).build();
 
         try {
-            final AlbumSimplified[] albumSimplifiedPaging = getListOfNewReleasesRequest.execute().getItems();
+            final AlbumSimplified[] albumSimplifiedPaging = getListOfNewReleasesRequest
+                    .execute().getItems();
             Map<String, ArrayList<String>> releases =  new HashMap<>();
             ArrayList<String> links = new ArrayList<>();
             for (int i = 0; i < albumSimplifiedPaging.length; i++) {
-                releases.put(albumSimplifiedPaging[i].getName().replaceAll("\\[|\\]", "")
+                releases.put(albumSimplifiedPaging[i].getName()
                 ,arrayToList(albumSimplifiedPaging[0].getArtists()));
                 links.add(albumSimplifiedPaging[i].getHref());
             }
@@ -160,6 +220,7 @@ class SpotifyModel {
                 System.out.println(releases.values().toArray()[i]);
                 System.out.println(processLink(links.get(i), "albums") + "\n");
             }
+
             System.out.printf("---PAGE %s of %s---\n", currentPage + 1, songs / limit);
 
         } catch (IOException | SpotifyWebApiException e) {
