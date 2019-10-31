@@ -70,4 +70,16 @@ class Server {
     void getNew() {
         model.getNew();
     }
+
+    void nullifyPage() {
+        model.nullifyPage();
+    }
+
+    void previousPage() {
+        model.previousPage();
+    }
+
+    void nextPage() {
+        model.nextPage();
+    }
 }
