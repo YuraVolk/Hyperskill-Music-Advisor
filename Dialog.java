@@ -12,7 +12,7 @@ class Dialog {
     private String choice = "";
     private final Scanner scanner = new Scanner(System.in);
 
-    private void previousOption(String previousChoice, Server server) {
+    private void previousOption(String previousChoice, Server server, String previousPlaylist) {
         switch (previousChoice) {
             case "new":
                 server.getNew();
@@ -24,7 +24,7 @@ class Dialog {
                 server.getCategories();
                 break;
             case "playlists":
-                server.getCategory(scanner.nextLine());
+                server.getCategory(previousPlaylist);
                 break;
         }
     }
@@ -40,6 +40,7 @@ class Dialog {
         Server server = new Server(redirectURI, clientId, secret);
 
         String previousChoice = "";
+        String previousPlaylist = "";
         while(!choice.equals("exit")) {
             choice = scanner.next();
 
@@ -74,15 +75,16 @@ class Dialog {
                     break;
                 case "playlists":
                     server.nullifyPage();
-                    server.getCategory(scanner.nextLine());
+                    previousPlaylist = scanner.nextLine();
+                    server.getCategory(previousPlaylist);
                     break;
                 case "next":
                     server.nextPage();
-                    previousOption(previousChoice, server);
+                    previousOption(previousChoice, server, previousPlaylist);
                     break;
                 case "prev":
                     server.previousPage();
-                    previousOption(previousChoice, server);
+                    previousOption(previousChoice, server, previousPlaylist);
                     break;
             }
             if (!choice.equals("next") && !choice.equals("prev")) {
